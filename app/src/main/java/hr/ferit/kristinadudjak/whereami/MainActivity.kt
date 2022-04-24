@@ -7,21 +7,17 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import hr.ferit.kristinadudjak.whereami.R
 import hr.ferit.kristinadudjak.whereami.databinding.ActivityMainBinding
 import java.util.*
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback {
-    private lateinit var map: GoogleMap
+class MainActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val REQUEST_CODE = 100
@@ -35,27 +31,33 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
 
-            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null){
-                    val geocoder = Geocoder( this, Locale.getDefault())
-                    try {
-                        val addresses =
-                            geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                        binding.tvLatitude.text = "Latitude :" + addresses[0].latitude
-                        binding.tvLongitude.text = "Longitude :" + addresses[0].longitude
-                        binding.tvAddress.text = "Address :" + addresses[0].getAddressLine(0)
-                        binding.tvCity.text = "City :" + addresses[0].locality
-                        binding.tvCountry.text = "Country :" + addresses[0].countryName
+        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null){
+                val geocoder = Geocoder( this, Locale.getDefault())
+                mapFragment.getMapAsync { googleMap ->
+                    val latLng = LatLng(location.latitude, location.longitude)
+                    val markerOptions = MarkerOptions().position(latLng).title("Im here")
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15F))
+                    googleMap.addMarker(markerOptions)
 
-                    } catch (e: Exception){
-                        e.printStackTrace()
-                    }
-                } else {
-                    askPermission()
                 }
+                try {
+                    val addresses =
+                        geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                    binding.tvLatitude.text = "Latitude :" + addresses[0].latitude
+                    binding.tvLongitude.text = "Longitude :" + addresses[0].longitude
+                    binding.tvAddress.text = "Address :" + addresses[0].getAddressLine(0)
+                    binding.tvCity.text = "City :" + addresses[0].locality
+                    binding.tvCountry.text = "Country :" + addresses[0].countryName
+
+                } catch (e: Exception){
+                    e.printStackTrace()
+                }
+            } else {
+                askPermission()
             }
+        }
     }
 
     private fun askPermission() {
@@ -75,20 +77,5 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 Toast.makeText(this, "Permission not granted", Toast.LENGTH_SHORT).show()
             }
         }
-
     }
-
-    override fun onMapReady(googleMap: GoogleMap) {
-        map = googleMap
-
-        map.setOnMapClickListener { latLng ->
-
-            map.addMarker(MarkerOptions().position(latLng).title("Im here"))
-            map.mapType = GoogleMap.MAP_TYPE_NORMAL
-            map.uiSettings.isZoomControlsEnabled = true
-            map.moveCamera(CameraUpdateFactory.newLatLng(latLng))
-        }
-
-    }
-
 }
