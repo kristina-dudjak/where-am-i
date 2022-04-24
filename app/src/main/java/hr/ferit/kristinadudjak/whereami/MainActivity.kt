@@ -1,4 +1,5 @@
 package hr.ferit.kristinadudjak.whereami
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
@@ -11,13 +12,13 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import hr.ferit.kristinadudjak.whereami.databinding.ActivityMainBinding
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityMainBinding
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val REQUEST_CODE = 100
@@ -33,14 +34,13 @@ class MainActivity : AppCompatActivity() {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
         fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-            if (location != null){
-                val geocoder = Geocoder( this, Locale.getDefault())
+            if (location != null) {
+                val geocoder = Geocoder(this, Locale.getDefault())
                 mapFragment.getMapAsync { googleMap ->
                     val latLng = LatLng(location.latitude, location.longitude)
                     val markerOptions = MarkerOptions().position(latLng).title("Im here")
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15F))
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10F))
                     googleMap.addMarker(markerOptions)
-
                 }
                 try {
                     val addresses =
@@ -51,18 +51,39 @@ class MainActivity : AppCompatActivity() {
                     binding.tvCity.text = "City :" + addresses[0].locality
                     binding.tvCountry.text = "Country :" + addresses[0].countryName
 
-                } catch (e: Exception){
+                } catch (e: Exception) {
                     e.printStackTrace()
                 }
             } else {
                 askPermission()
             }
         }
+
+        val pinDescriptors = listOf(
+            BitmapDescriptorFactory.HUE_AZURE,
+            BitmapDescriptorFactory.HUE_BLUE,
+            BitmapDescriptorFactory.HUE_CYAN,
+            BitmapDescriptorFactory.HUE_GREEN,
+            BitmapDescriptorFactory.HUE_MAGENTA,
+            BitmapDescriptorFactory.HUE_ORANGE,
+            BitmapDescriptorFactory.HUE_YELLOW,
+            BitmapDescriptorFactory.HUE_ROSE,
+            BitmapDescriptorFactory.HUE_VIOLET
+        )
+        mapFragment.getMapAsync { googleMap ->
+            googleMap.setOnMapClickListener { latLng ->
+                val bitmapDescriptor = BitmapDescriptorFactory.defaultMarker(pinDescriptors.random())
+                val markerOptions = MarkerOptions().position(latLng).title("New pin").icon(bitmapDescriptor)
+                googleMap.addMarker(markerOptions)
+            }
+        }
     }
 
     private fun askPermission() {
-        ActivityCompat.requestPermissions(this,
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_CODE)
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_CODE
+        )
     }
 
     override fun onRequestPermissionsResult(
@@ -70,12 +91,14 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (requestCode==REQUEST_CODE){
-            if(grantResults.isNotEmpty() &&  grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        if (requestCode == REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-            }  else {
+            } else {
                 Toast.makeText(this, "Permission not granted", Toast.LENGTH_SHORT).show()
             }
         }
+
     }
+
 }
