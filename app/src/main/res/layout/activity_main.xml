@@ -16,28 +16,26 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tv_geoWidth"
+        android:id="@+id/tv_latitude"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="@id/b_takePhoto"
-        app:layout_constraintTop_toBottomOf="@id/b_takePhoto"
-        android:text="Geografska širina: " />
+        app:layout_constraintTop_toBottomOf="@id/b_takePhoto" />
 
     <TextView
-        android:id="@+id/tv_geoLength"
+        android:id="@+id/tv_longitude"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Geografska dužina: "
-        app:layout_constraintStart_toStartOf="@id/tv_geoWidth"
-        app:layout_constraintTop_toBottomOf="@id/tv_geoWidth" />
+        app:layout_constraintStart_toStartOf="@id/tv_latitude"
+        app:layout_constraintTop_toBottomOf="@id/tv_latitude" />
 
     <TextView
         android:id="@+id/tv_country"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Država:"
-        app:layout_constraintStart_toStartOf="@id/tv_geoLength"
-        app:layout_constraintTop_toBottomOf="@id/tv_geoLength" />
+        app:layout_constraintStart_toStartOf="@id/tv_longitude"
+        app:layout_constraintTop_toBottomOf="@id/tv_longitude" />
 
     <TextView
         android:id="@+id/tv_city"
