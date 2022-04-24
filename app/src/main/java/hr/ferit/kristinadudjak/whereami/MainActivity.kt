@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.media.SoundPool
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +23,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val REQUEST_CODE = 100
+    private lateinit var soundPool: SoundPool
+    private var soundMap: HashMap<Int, Int> = HashMap()
 
 
     @SuppressLint("MissingPermission")
@@ -32,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-
+        this.loadSounds()
         fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
                 val geocoder = Geocoder(this, Locale.getDefault())
@@ -72,12 +75,24 @@ class MainActivity : AppCompatActivity() {
         )
         mapFragment.getMapAsync { googleMap ->
             googleMap.setOnMapClickListener { latLng ->
+                playSound(R.raw.click)
                 val bitmapDescriptor = BitmapDescriptorFactory.defaultMarker(pinDescriptors.random())
                 val markerOptions = MarkerOptions().position(latLng).title("New pin").icon(bitmapDescriptor)
                 googleMap.addMarker(markerOptions)
             }
         }
     }
+
+    private fun loadSounds() {
+        this.soundPool = SoundPool.Builder().setMaxStreams(10).build()
+        this.soundMap[R.raw.click] = this.soundPool.load(this, R.raw.click, 1)
+    }
+
+    private fun playSound(selectedSound: Int) {
+        val soundID = this.soundMap[selectedSound] ?: 0
+        this.soundPool.play(soundID, 1f, 1f, 1, 0, 1f)
+    }
+
 
     private fun askPermission() {
         ActivityCompat.requestPermissions(
@@ -98,7 +113,6 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Permission not granted", Toast.LENGTH_SHORT).show()
             }
         }
-
     }
 
 }
