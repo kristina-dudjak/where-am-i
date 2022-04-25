@@ -7,60 +7,59 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/b_takePhoto"
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_View"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Snimi fotografiju"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" >
 
-    <TextView
-        android:id="@+id/tv_latitude"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@id/b_takePhoto"
-        app:layout_constraintTop_toBottomOf="@id/b_takePhoto" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tv_longitude"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@id/tv_latitude"
-        app:layout_constraintTop_toBottomOf="@id/tv_latitude" />
+        <Button
+            android:id="@+id/b_takePhoto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Snimi fotografiju" />
 
-    <TextView
-        android:id="@+id/tv_country"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Država:"
-        app:layout_constraintStart_toStartOf="@id/tv_longitude"
-        app:layout_constraintTop_toBottomOf="@id/tv_longitude" />
+        <TextView
+            android:id="@+id/tv_latitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-    <TextView
-        android:id="@+id/tv_city"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Mjesto: "
-        app:layout_constraintStart_toStartOf="@id/tv_country"
-        app:layout_constraintTop_toBottomOf="@id/tv_country" />
+        <TextView
+            android:id="@+id/tv_longitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-    <TextView
-        android:id="@+id/tv_address"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Adresa: "
-        app:layout_constraintStart_toStartOf="@id/tv_city"
-        app:layout_constraintTop_toBottomOf="@id/tv_city" />
+        <TextView
+            android:id="@+id/tv_country"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-    <androidx.fragment.app.FragmentContainerView
-        xmlns:map="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/map"
-        tools:context=".MapsActivity"
-        map:layout_constraintTop_toBottomOf="@id/tv_address"
-        map:layout_constraintStart_toStartOf="@id/tv_address"
-        android:name="com.google.android.gms.maps.SupportMapFragment"/>
+        <TextView
+            android:id="@+id/tv_city"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tv_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:context=".MapsActivity"
+            android:name="com.google.android.gms.maps.SupportMapFragment"/>
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
 
   </androidx.constraintlayout.widget.ConstraintLayout>
