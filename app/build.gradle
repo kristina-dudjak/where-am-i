@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "hr.ferit.kristinadudjak.whereami"
-        minSdk 23
+        minSdk 26
         targetSdk 31
         versionCode 1
         versionName "1.0"

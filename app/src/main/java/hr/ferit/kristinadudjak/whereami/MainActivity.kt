@@ -2,7 +2,9 @@ package hr.ferit.kristinadudjak.whereami
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.ContentValues
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -13,11 +15,13 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -47,12 +51,15 @@ class MainActivity : AppCompatActivity() {
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1)
 
+        createNotificationChannels(this)
+
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         binding.bTakePhoto.setOnClickListener{
             val bitmap = getScreenShotFromView(binding.cardView)
             if (bitmap != null) {
-                saveMediaToStorage(bitmap)
+                val fileUri = saveMediaToStorage(bitmap)
+                displayNotification(fileUri)
             }
         }
 
@@ -105,9 +112,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveMediaToStorage(bitmap: Bitmap) {
+    private fun displayNotification(fileUri: Uri?) {
+        var pendingIntent: PendingIntent? = null
+        if (fileUri != null) {
+            val intent = Intent(Intent.ACTION_VIEW,fileUri)
+            pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle("Where am I")
+            .setContentText("Spremljena je nova slika")
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .build()
+        NotificationManagerCompat.from(this)
+            .notify(1001, notification)
+
+    }
+
+    private fun saveMediaToStorage(bitmap: Bitmap): Uri? {
         val fileName = "${System.currentTimeMillis()}.jpg"
         var fos: OutputStream? = null
+        var fileUri: Uri? = null
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             this.contentResolver?.also { resolver ->
 
@@ -118,16 +150,19 @@ class MainActivity : AppCompatActivity() {
                 }
                 val imageUri: Uri? = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
                 fos = imageUri?.let { resolver.openOutputStream(it) }
+                fileUri = imageUri
             }
         } else {
             val imagesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
             val image = File(imagesDir, fileName)
             fos = FileOutputStream(image)
+            fileUri = image.toUri()
         }
         fos?.use {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
             Toast.makeText(this , "Saved to Gallery" , Toast.LENGTH_SHORT).show()
         }
+        return fileUri
     }
 
     private fun getScreenShotFromView(v: View): Bitmap? {
